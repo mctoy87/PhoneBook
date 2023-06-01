@@ -148,7 +148,6 @@ const data = [
         text: 'Отмена',
       },
     ]);
-    console.log(buttonGroup);
 
     form.append(...buttonGroup.btns);
 
@@ -184,7 +183,7 @@ const data = [
     const buttonGroup = createButtonsGroup([
       // придумываем параметры кнопок
       {
-        className: 'btn btn-primary mr-3',
+        className: 'btn btn-primary mr-3 js-add',
         type: 'button',
         text: 'Добавить',
       },
@@ -211,7 +210,11 @@ const data = [
 
     return {
       list: table.tbody,
-    }
+      logo,
+      btnAdd: buttonGroup.btns[0],
+      formOverlay: form.overlay,
+      form: form.form,
+    };
   };
 
   const createRow = ({name: firstName, surname, phone}) => {
@@ -234,7 +237,7 @@ const data = [
     const phoneLink = document.createElement('a');
     phoneLink.href = `tel:${phone}`;
     phoneLink.textContent = phone;
-
+    tr.phoneLink = phoneLink;
     tdPhone.append(phoneLink);
 
 
@@ -245,7 +248,22 @@ const data = [
   const renderContacts = (elem, data) => {
     const allRow = data.map(createRow);
     elem.append(...allRow);
-  }
+    return allRow;
+  };
+
+  const hoverRow = (allRow, logo) => {
+    const text = logo.textContent;
+
+    allRow.forEach(contact => {
+      contact.addEventListener('mouseenter', () => {
+        logo.textContent = contact.phoneLink.textContent;
+      });
+      contact.addEventListener('mouseleave', () => {
+        logo.textContent = text;
+      });
+    });
+  };
+
   // 2. ф-я принимает селектор элемента и заголовок со страницы
   // и передает в render функцию
   const init = (selectApp, title) => {
@@ -253,9 +271,24 @@ const data = [
     const app = document.querySelector(selectApp);
     const phoneBook = renderPhoneBook(app, title);
 
-    const {list} = phoneBook;
-    renderContacts(list, data);
+    const {list, logo, btnAdd, formOverlay, form} = phoneBook;
+
     // Функционал
+    const allRow = renderContacts(list, data);
+
+    hoverRow(allRow, logo);
+
+    btnAdd.addEventListener('click', () => {
+      formOverlay.classList.add('is-visible');
+    });
+
+    form.addEventListener('click', event => {
+      event.stopPropagation();
+    });
+
+    formOverlay.addEventListener('click', () => {
+      formOverlay.classList.remove('is-visible');
+    });
   };
   // 1. выносит в window ф-ю инициализации app.
   window.phonebookInit = init;
