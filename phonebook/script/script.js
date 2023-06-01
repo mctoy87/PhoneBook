@@ -240,8 +240,13 @@ const data = [
     tr.phoneLink = phoneLink;
     tdPhone.append(phoneLink);
 
-
-    tr.append(tdDel, tdName, tdSurname, tdPhone);
+    const tdEdit = document.createElement('button');
+    tdEdit.classList.add('btn', 'btn-outline-danger', 'btn-sm');
+    tdEdit.insertAdjacentHTML('beforeend', `
+    <i>Редактировать</i>
+    `);
+    // tdEdit.style.backgroundImage = 'url(../img/edit.svg)';
+    tr.append(tdDel, tdName, tdSurname, tdPhone, tdEdit);
     return tr;
   };
 
