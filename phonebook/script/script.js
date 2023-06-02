@@ -92,8 +92,8 @@ const data = [
     thead.insertAdjacentHTML('beforeend', `
       <tr>
         <th class="delete">Удалить</th>
-        <th>Имя</th>
-        <th>Фамилия</th>
+        <th class="firstName">Имя</th>
+        <th class="surName">Фамилия</th>
         <th>Телефон</th>
       </tr>
     `);
@@ -103,6 +103,7 @@ const data = [
     table.append(thead, tbody);
     // чтобы не возвращать объект table, а на прямую
     table.tbody = tbody;
+    table.thead = thead;
 
     return table;
   };
@@ -210,8 +211,10 @@ const data = [
 
     return {
       list: table.tbody,
+      thead: table.thead,
       logo,
       btnAdd: buttonGroup.btns[0],
+      btnDel: buttonGroup.btns[1],
       formOverlay: form.overlay,
       form: form.form,
     };
@@ -219,6 +222,7 @@ const data = [
 
   const createRow = ({name: firstName, surname, phone}) => {
     const tr = document.createElement('tr');
+    tr.classList.add('contact');
 
     const tdDel = document.createElement('td');
     tdDel.classList.add('delete');
@@ -245,7 +249,12 @@ const data = [
     tdEdit.insertAdjacentHTML('beforeend', `
     <i>Редактировать</i>
     `);
-    // tdEdit.style.backgroundImage = 'url(../img/edit.svg)';
+    tdEdit.style.cssText = `
+      padding-left: 20px;
+      background-image: url('../phonebook/img/edit.svg');
+      background-repeat: no-repeat;
+      background-position: 0 50%;
+    `;
     tr.append(tdDel, tdName, tdSurname, tdPhone, tdEdit);
     return tr;
   };
@@ -259,6 +268,7 @@ const data = [
   const hoverRow = (allRow, logo) => {
     const text = logo.textContent;
 
+    // наведение мыши - показывает контакт(телефон)
     allRow.forEach(contact => {
       contact.addEventListener('mouseenter', () => {
         logo.textContent = contact.phoneLink.textContent;
@@ -269,6 +279,7 @@ const data = [
     });
   };
 
+
   // 2. ф-я принимает селектор элемента и заголовок со страницы
   // и передает в render функцию
   const init = (selectApp, title) => {
@@ -276,7 +287,15 @@ const data = [
     const app = document.querySelector(selectApp);
     const phoneBook = renderPhoneBook(app, title);
 
-    const {list, logo, btnAdd, formOverlay, form} = phoneBook;
+    const {
+      list,
+      thead,
+      logo,
+      btnAdd,
+      formOverlay,
+      form,
+      btnDel,
+    } = phoneBook;
 
     // Функционал
     const allRow = renderContacts(list, data);
@@ -287,13 +306,36 @@ const data = [
       formOverlay.classList.add('is-visible');
     });
 
-    form.addEventListener('click', event => {
-      event.stopPropagation();
+    formOverlay.addEventListener('click', e => {
+      const target = e.target;
+      if (target === formOverlay ||
+          target.classList.contains('close')) {
+        formOverlay.classList.remove('is-visible');
+      }
     });
 
-    formOverlay.addEventListener('click', () => {
-      formOverlay.classList.remove('is-visible');
+    btnDel.addEventListener('click', () => {
+      document.querySelectorAll('.delete').forEach(del => {
+        del.classList.toggle('is-visible');
+      });
     });
+
+    list.addEventListener('click', e => {
+      const target = e.target;
+      if (target.closest('.del-icon')) {
+        target.closest('.contact').remove();
+      }
+    });
+
+    thead.addEventListener('click', e => {
+      const target = e.target;
+      console.log(target);
+      if (target.classList.contains('firstName')) {
+        console.log('sortName');
+      }
+    });
+
+    // console.log(tr);
   };
   // 1. выносит в window ф-ю инициализации app.
   window.phonebookInit = init;
