@@ -329,13 +329,26 @@ const data = [
 
     thead.addEventListener('click', e => {
       const target = e.target;
-      console.log(target);
+
+      // событие на Имени в thead
       if (target.classList.contains('firstName')) {
-        console.log('sortName');
+        // call-back фун-я сортировки по имени
+        const SortArray = (x, y) => {
+          if (x.name < y.name) {
+            return -1;
+          }
+          if (x.name > y.name) {
+            return 1;
+          }
+          return 0;
+        };
+        // сортировать объект по имени
+        const sortData = data.sort(SortArray);
+        // создать новые объекты в верстке
+        const sortRow = sortData.map(createRow);
+        list.append(...sortRow);
       }
     });
-
-    // console.log(tr);
   };
   // 1. выносит в window ф-ю инициализации app.
   window.phonebookInit = init;
