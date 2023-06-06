@@ -326,29 +326,61 @@ const data = [
         target.closest('.contact').remove();
       }
     });
+    // сортировка по имени или фамлилии
+    // thead.addEventListener('click', e => {
+    //   const target = e.target;
 
-    thead.addEventListener('click', e => {
-      const target = e.target;
+    // событие на Имени в thead
+    // не работает ховер
+    // if (target.classList.contains('firstName')) {
+      //   // call-back фун-я сортировки по имени
+      //   const SortArray = (x, y) => {
+      //     if (x.name < y.name) {
+      //       return -1;
+      //     }
+      //     if (x.name > y.name) {
+      //       return 1;
+      //     }
+      //     return 0;
+      //   };
 
-      // событие на Имени в thead
-      if (target.classList.contains('firstName')) {
-        // call-back фун-я сортировки по имени
-        const SortArray = (x, y) => {
-          if (x.name < y.name) {
-            return -1;
-          }
-          if (x.name > y.name) {
-            return 1;
-          }
-          return 0;
-        };
-        // сортировать объект по имени
-        const sortData = data.sort(SortArray);
-        // создать новые объекты в верстке
-        const sortRow = sortData.map(createRow);
-        list.append(...sortRow);
-      }
-    });
+      //   // сортировать объект по имени
+      //   const sortData = data.sort(SortArray);
+
+      //   // создать новые объекты в верстке
+      //   const sortRow = sortData.map(createRow);
+
+      //   // очистить элемент в верстке
+      //   list.innerHTML = '';
+      //   // вставить элементы в верстку
+      //   list.append(...sortRow);
+    // }
+
+    // событие на Фаимлии в thead
+    // не работает hover
+    // if (target.classList.contains('surName')) {
+      //   console.log('surname');
+      //   // call-back фун-я сортировки по фамилии
+      //   const SortArray = (x, y) => {
+      //     if (x.surname < y.surname) {
+      //       return -1;
+      //     }
+      //     if (x.surname > y.surname) {
+      //       return 1;
+      //     }
+      //     return 0;
+      //   };
+
+      //   // сортировать объект по фамилии
+      //   const sortData = data.sort(SortArray);
+
+      //   const sortRow = sortData.map(createRow);
+      //   // очистить элемент в верстке
+      //   list.innerHTML = '';
+      //   // вставить элементы в верстку
+      //   list.append(...sortRow);
+    // }
+    // });
   };
   // 1. выносит в window ф-ю инициализации app.
   window.phonebookInit = init;
