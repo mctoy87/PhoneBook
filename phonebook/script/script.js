@@ -25,6 +25,10 @@ const data = [
 
 // блочная область видимости -чтобы выносить в глобальную ОВ только то что нужно
 {
+  const addContactData = contact => {
+    data.push(contact);
+    console.log('data: ', data);
+  };
   // создает контейнер для header
   const createContainer = () => {
     const container = document.createElement('div');
@@ -197,7 +201,7 @@ const data = [
     // создать таблицу
     const table = createTable();
     // создать форму/модалку
-    const form = createForm();
+    const {form, overlay} = createForm();
     // создать footer страницы
     const footer = createFooter();
 
@@ -205,7 +209,7 @@ const data = [
     header.headerContainer.append(logo);
     // добавить на страницу обертку для кнопок и таблицу и overlay
     // т.к. возвращается объект, то append .btnWrapper
-    main.mainContainer.append(buttonGroup.btnWrapper, table, form.overlay);
+    main.mainContainer.append(buttonGroup.btnWrapper, table, overlay);
     // добавить header и main и footer на страницу
     app.append(header, main, footer);
 
@@ -215,8 +219,8 @@ const data = [
       logo,
       btnAdd: buttonGroup.btns[0],
       btnDel: buttonGroup.btns[1],
-      formOverlay: form.overlay,
-      form: form.form,
+      formOverlay: overlay,
+      form,
     };
   };
 
@@ -279,41 +283,29 @@ const data = [
     });
   };
 
-
-  // 2. ф-я принимает селектор элемента и заголовок со страницы
-  // и передает в render функцию
-  const init = (selectApp, title) => {
-    // получить эл-т по селектору
-    const app = document.querySelector(selectApp);
-    const phoneBook = renderPhoneBook(app, title);
-
-    const {
-      list,
-      thead,
-      logo,
-      btnAdd,
-      formOverlay,
-      form,
-      btnDel,
-    } = phoneBook;
-
-    // Функционал
-    const allRow = renderContacts(list, data);
-
-    hoverRow(allRow, logo);
-
-    btnAdd.addEventListener('click', () => {
+  const modalControl = (btnAdd, formOverlay) => {
+    const openModal = () => {
       formOverlay.classList.add('is-visible');
-    });
+    };
+    btnAdd.addEventListener('click', openModal);
 
+    const closeModal = () => {
+      formOverlay.classList.remove('is-visible');
+    };
     formOverlay.addEventListener('click', e => {
       const target = e.target;
       if (target === formOverlay ||
           target.classList.contains('close')) {
-        formOverlay.classList.remove('is-visible');
+        closeModal();
       }
     });
 
+    return {
+      closeModal,
+    };
+  };
+
+  const deleteControl = (btnDel, list) => {
     btnDel.addEventListener('click', () => {
       document.querySelectorAll('.delete').forEach(del => {
         del.classList.toggle('is-visible');
@@ -326,6 +318,55 @@ const data = [
         target.closest('.contact').remove();
       }
     });
+  };
+
+  const addContactPage = (contact, list) => {
+    list.append(createRow(contact));
+  };
+
+  const formControl = (form, list, closeModal) => {
+    form.addEventListener('submit', e => {
+      // не дает обновлять страницу на submit
+      e.preventDefault();
+      // отправляет данные
+      const formData = new FormData(e.target);
+      const newContact = Object.fromEntries(formData);
+      console.log('New contact: ', newContact);
+      
+      // добавляет новый контакт в верстку
+      addContactPage(newContact, list);
+      // добавляет новый контакт в хранилище
+      addContactData(newContact);
+      // очищает форму в конце
+      form.reset();
+      // закрывает модалку
+      closeModal();
+    });
+  };
+  // 2. ф-я принимает селектор элемента и заголовок со страницы
+  // и передает в render функцию
+  const init = (selectApp, title) => {
+    // получить эл-т по селектору
+    const app = document.querySelector(selectApp);
+
+    const {
+      list,
+      thead,
+      logo,
+      btnAdd,
+      formOverlay,
+      form,
+      btnDel,
+    } = renderPhoneBook(app, title);
+
+    // Функционал
+    const allRow = renderContacts(list, data);
+    const {closeModal} = modalControl(btnAdd, formOverlay);
+
+    hoverRow(allRow, logo);
+    deleteControl(btnDel, list);
+    formControl(form, list, closeModal);
+
     // сортировка по имени или фамлилии
     // thead.addEventListener('click', e => {
     //   const target = e.target;
