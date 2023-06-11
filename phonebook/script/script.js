@@ -25,10 +25,43 @@ const data = [
 
 // блочная область видимости -чтобы выносить в глобальную ОВ только то что нужно
 {
-  const addContactData = contact => {
-    data.push(contact);
-    console.log('data: ', data);
+// работа с localStorage
+  //  getStorage получает в виде аргумента ключ и по нему запрашивает
+  // данные из localStorage и возвращает их, если их нет то возвращает
+  // пустой массив
+
+  const getStorage = (key) => {
+    if (!localStorage.hasOwnProperty(key)) {
+      return [];
+    } else {
+      return JSON.parse(localStorage.getItem(key));
+    }
   };
+  // записать данные в ханилище
+  // получает ключ и объект в виде аргументов и дописывает данные в localStorage
+  const setStorage = (key, obj) => {
+    if (!localStorage.hasOwnProperty(key)) {
+      const data = [];
+      data.push(...obj);
+      localStorage.setItem(key, JSON.stringify(data));
+    } else {
+      localStorage.setItem(key, JSON.stringify(obj));
+    }
+  };
+
+  // удаляет из localStorage
+  const removeStorage = key => {
+    const data = getStorage('phonebook');
+    const dataAfterDelete = data.filter(item => item.phone !== key);
+    setStorage('phonebook', dataAfterDelete);
+  };
+  // добавляет в localStorage
+  const addContactData = contact => {
+    const data = getStorage('phonebook');
+    data.push(contact);
+    setStorage('phonebook', data);
+  };
+
   // создает контейнер для header
   const createContainer = () => {
     const container = document.createElement('div');
@@ -242,6 +275,7 @@ const data = [
     tdSurname.textContent = surname;
 
     const tdPhone = document.createElement('td');
+    tdPhone.classList.add('telefon');
     const phoneLink = document.createElement('a');
     phoneLink.href = `tel:${phone}`;
     phoneLink.textContent = phone;
@@ -316,6 +350,9 @@ const data = [
       const target = e.target;
       if (target.closest('.del-icon')) {
         target.closest('.contact').remove();
+        // удалить из localStorage
+        const phoneDel = target.closest('.contact').childNodes[3].textContent;
+        removeStorage(phoneDel);
       }
     });
   };
@@ -331,8 +368,7 @@ const data = [
       // отправляет данные
       const formData = new FormData(e.target);
       const newContact = Object.fromEntries(formData);
-      console.log('New contact: ', newContact);
-      
+
       // добавляет новый контакт в верстку
       addContactPage(newContact, list);
       // добавляет новый контакт в хранилище
@@ -343,6 +379,7 @@ const data = [
       closeModal();
     });
   };
+
   // 2. ф-я принимает селектор элемента и заголовок со страницы
   // и передает в render функцию
   const init = (selectApp, title) => {
@@ -361,11 +398,14 @@ const data = [
 
     // Функционал
     const allRow = renderContacts(list, data);
+
     const {closeModal} = modalControl(btnAdd, formOverlay);
 
     hoverRow(allRow, logo);
     deleteControl(btnDel, list);
     formControl(form, list, closeModal);
+
+    setStorage('phonebook', data);
 
     // сортировка по имени или фамлилии
     // thead.addEventListener('click', e => {
@@ -374,52 +414,52 @@ const data = [
     // событие на Имени в thead
     // не работает ховер
     // if (target.classList.contains('firstName')) {
-      //   // call-back фун-я сортировки по имени
-      //   const SortArray = (x, y) => {
-      //     if (x.name < y.name) {
-      //       return -1;
-      //     }
-      //     if (x.name > y.name) {
-      //       return 1;
-      //     }
-      //     return 0;
-      //   };
+    //   // call-back фун-я сортировки по имени
+    //   const SortArray = (x, y) => {
+    //     if (x.name < y.name) {
+    //       return -1;
+    //     }
+    //     if (x.name > y.name) {
+    //       return 1;
+    //     }
+    //     return 0;
+    //   };
 
-      //   // сортировать объект по имени
-      //   const sortData = data.sort(SortArray);
+    //   // сортировать объект по имени
+    //   const sortData = data.sort(SortArray);
 
-      //   // создать новые объекты в верстке
-      //   const sortRow = sortData.map(createRow);
+    //   // создать новые объекты в верстке
+    //   const sortRow = sortData.map(createRow);
 
-      //   // очистить элемент в верстке
-      //   list.innerHTML = '';
-      //   // вставить элементы в верстку
-      //   list.append(...sortRow);
+    //   // очистить элемент в верстке
+    //   list.innerHTML = '';
+    //   // вставить элементы в верстку
+    //   list.append(...sortRow);
     // }
 
     // событие на Фаимлии в thead
     // не работает hover
     // if (target.classList.contains('surName')) {
-      //   console.log('surname');
-      //   // call-back фун-я сортировки по фамилии
-      //   const SortArray = (x, y) => {
-      //     if (x.surname < y.surname) {
-      //       return -1;
-      //     }
-      //     if (x.surname > y.surname) {
-      //       return 1;
-      //     }
-      //     return 0;
-      //   };
+    //   console.log('surname');
+    //   // call-back фун-я сортировки по фамилии
+    //   const SortArray = (x, y) => {
+    //     if (x.surname < y.surname) {
+    //       return -1;
+    //     }
+    //     if (x.surname > y.surname) {
+    //       return 1;
+    //     }
+    //     return 0;
+    //   };
 
-      //   // сортировать объект по фамилии
-      //   const sortData = data.sort(SortArray);
+    //   // сортировать объект по фамилии
+    //   const sortData = data.sort(SortArray);
 
-      //   const sortRow = sortData.map(createRow);
-      //   // очистить элемент в верстке
-      //   list.innerHTML = '';
-      //   // вставить элементы в верстку
-      //   list.append(...sortRow);
+    //   const sortRow = sortData.map(createRow);
+    //   // очистить элемент в верстке
+    //   list.innerHTML = '';
+    //   // вставить элементы в верстку
+    //   list.append(...sortRow);
     // }
     // });
   };
