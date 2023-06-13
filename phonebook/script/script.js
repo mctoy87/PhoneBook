@@ -414,7 +414,9 @@ console.log('allRow: ', allRow);
     const {closeModal} = modalControl(btnAdd, formOverlay);
 
     // hoverRow(allRow, logo);
+    // ховер - показать контакт в header
     listHoverRow(list, logo);
+
     deleteControl(btnDel, list);
     formControl(form, list, closeModal);
 
@@ -424,9 +426,10 @@ console.log('allRow: ', allRow);
     thead.addEventListener('click', e => {
       const target = e.target;
 
-    // событие на Имени в thead
-    // не работает ховер
+      // сортировка по имени на событии в thead
       if (target.classList.contains('firstName')) {
+        console.log(target);
+        localStorage.setItem('sorting', 'name');
         // call-back фун-я сортировки по имени
         const SortArray = (x, y) => {
           if (x.name < y.name) {
@@ -438,44 +441,42 @@ console.log('allRow: ', allRow);
           return 0;
         };
 
-      // сортировать объект по имени
-      const sortData = data.sort(SortArray);
+        // сортировать объект по имени
+        const sortData = data.sort(SortArray);
+        // создать новые объекты в верстке
+        const sortRow = sortData.map(createRow);
+        // очистить элемент в верстке
+        list.innerHTML = '';
+        // вставить элементы в верстку
+        list.append(...sortRow);
+      }
 
-      // создать новые объекты в верстке
-      const sortRow = sortData.map(createRow);
+      // сортировка по фаимлии на событии в thead
 
-      // очистить элемент в верстке
-      list.innerHTML = '';
-      // вставить элементы в верстку
-      list.append(...sortRow);
-    }
+      if (target.classList.contains('surName')) {
+        localStorage.setItem('sorting', 'surname');
+        // call-back фун-я сортировки по фамилии
+        const SortArray = (x, y) => {
+          if (x.surname < y.surname) {
+            return -1;
+          }
+          if (x.surname > y.surname) {
+            return 1;
+          }
+          return 0;
+        };
 
-    // событие на Фаимлии в thead
-    // не работает hover
-    if (target.classList.contains('surName')) {
-      console.log('surname');
-      // call-back фун-я сортировки по фамилии
-      const SortArray = (x, y) => {
-        if (x.surname < y.surname) {
-          return -1;
-        }
-        if (x.surname > y.surname) {
-          return 1;
-        }
-        return 0;
-      };
+        // сортировать объект по фамилии
+        const sortData = data.sort(SortArray);
 
-      // сортировать объект по фамилии
-      const sortData = data.sort(SortArray);
-
-      const sortRow = sortData.map(createRow);
-      // очистить элемент в верстке
-      list.innerHTML = '';
-      // вставить элементы в верстку
-      list.append(...sortRow);
-    }
-    });
-  };
+        const sortRow = sortData.map(createRow);
+        // очистить элемент в верстке
+        list.innerHTML = '';
+        // вставить элементы в верстку
+        list.append(...sortRow);
+      }
+      });
+    };
   // 1. выносит в window ф-ю инициализации app.
   window.phonebookInit = init;
 }
