@@ -305,7 +305,7 @@ const data = [
 
   const hoverRow = (allRow, logo) => {
     const text = logo.textContent;
-
+console.log('allRow: ', allRow);
     // наведение мыши - показывает контакт(телефон)
     allRow.forEach(contact => {
       contact.addEventListener('mouseenter', () => {
@@ -396,72 +396,85 @@ const data = [
       btnDel,
     } = renderPhoneBook(app, title);
 
+    const listHoverRow = (list, logo) => {
+      const text = logo.textContent;
+      console.log('list: ', list);
+
+      // наведение мыши - показывает контакт(телефон)
+      list.addEventListener('mouseover', (e) => {
+        logo.textContent = e.target.closest('.contact').phoneLink.textContent;
+      });
+      list.addEventListener('mouseout', () => {
+        logo.textContent = text;
+      });
+    };
     // Функционал
     const allRow = renderContacts(list, data);
 
     const {closeModal} = modalControl(btnAdd, formOverlay);
 
-    hoverRow(allRow, logo);
+    // hoverRow(allRow, logo);
+    listHoverRow(list, logo);
     deleteControl(btnDel, list);
     formControl(form, list, closeModal);
 
     setStorage('phonebook', data);
 
     // сортировка по имени или фамлилии
-    // thead.addEventListener('click', e => {
-    //   const target = e.target;
+    thead.addEventListener('click', e => {
+      const target = e.target;
 
     // событие на Имени в thead
     // не работает ховер
-    // if (target.classList.contains('firstName')) {
-    //   // call-back фун-я сортировки по имени
-    //   const SortArray = (x, y) => {
-    //     if (x.name < y.name) {
-    //       return -1;
-    //     }
-    //     if (x.name > y.name) {
-    //       return 1;
-    //     }
-    //     return 0;
-    //   };
+      if (target.classList.contains('firstName')) {
+        // call-back фун-я сортировки по имени
+        const SortArray = (x, y) => {
+          if (x.name < y.name) {
+            return -1;
+          }
+          if (x.name > y.name) {
+            return 1;
+          }
+          return 0;
+        };
 
-    //   // сортировать объект по имени
-    //   const sortData = data.sort(SortArray);
+      // сортировать объект по имени
+      const sortData = data.sort(SortArray);
 
-    //   // создать новые объекты в верстке
-    //   const sortRow = sortData.map(createRow);
+      // создать новые объекты в верстке
+      const sortRow = sortData.map(createRow);
 
-    //   // очистить элемент в верстке
-    //   list.innerHTML = '';
-    //   // вставить элементы в верстку
-    //   list.append(...sortRow);
-    // }
+      // очистить элемент в верстке
+      list.innerHTML = '';
+      // вставить элементы в верстку
+      list.append(...sortRow);
+    }
 
     // событие на Фаимлии в thead
     // не работает hover
-    // if (target.classList.contains('surName')) {
-    //   console.log('surname');
-    //   // call-back фун-я сортировки по фамилии
-    //   const SortArray = (x, y) => {
-    //     if (x.surname < y.surname) {
-    //       return -1;
-    //     }
-    //     if (x.surname > y.surname) {
-    //       return 1;
-    //     }
-    //     return 0;
-    //   };
+    if (target.classList.contains('surName')) {
+      console.log('surname');
+      // call-back фун-я сортировки по фамилии
+      const SortArray = (x, y) => {
+        if (x.surname < y.surname) {
+          return -1;
+        }
+        if (x.surname > y.surname) {
+          return 1;
+        }
+        return 0;
+      };
 
-    //   // сортировать объект по фамилии
-    //   const sortData = data.sort(SortArray);
+      // сортировать объект по фамилии
+      const sortData = data.sort(SortArray);
 
-    //   const sortRow = sortData.map(createRow);
-    //   // очистить элемент в верстке
-    //   list.innerHTML = '';
-    //   // вставить элементы в верстку
-    //   list.append(...sortRow);
-    // }
-    // });
+      const sortRow = sortData.map(createRow);
+      // очистить элемент в верстке
+      list.innerHTML = '';
+      // вставить элементы в верстку
+      list.append(...sortRow);
+    }
+    });
   };
   // 1. выносит в window ф-ю инициализации app.
   window.phonebookInit = init;
