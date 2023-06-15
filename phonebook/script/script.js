@@ -1,65 +1,50 @@
 'use strict';
 
-const data = [
-  {
-    name: 'Иван',
-    surname: 'Петров',
-    phone: '+79514545454',
-  },
-  {
-    name: 'Игорь',
-    surname: 'Семёнов',
-    phone: '+79999999999',
-  },
-  {
-    name: 'Семён',
-    surname: 'Иванов',
-    phone: '+79800252525',
-  },
-  {
-    name: 'Мария',
-    surname: 'Попова',
-    phone: '+79876543210',
-  },
-];
+// const data = [
+//   {
+//     name: 'Иван',
+//     surname: 'Петров',
+//     phone: '+79514545454',
+//   },
+//   {
+//     name: 'Игорь',
+//     surname: 'Семёнов',
+//     phone: '+79999999999',
+//   },
+//   {
+//     name: 'Семён',
+//     surname: 'Иванов',
+//     phone: '+79800252525',
+//   },
+//   {
+//     name: 'Мария',
+//     surname: 'Попова',
+//     phone: '+79876543210',
+//   },
+// ];
 
 // блочная область видимости -чтобы выносить в глобальную ОВ только то что нужно
 {
 // работа с localStorage
-  //  getStorage получает в виде аргумента ключ и по нему запрашивает
-  // данные из localStorage и возвращает их, если их нет то возвращает
-  // пустой массив
+// получение контактов из хранилища
+  const getContactData = () => (localStorage.getItem('phonebook') ?
+  JSON.parse(localStorage.getItem('phonebook')) : []);
 
-  const getStorage = (key) => {
-    if (!localStorage.hasOwnProperty(key)) {
-      return [];
-    } else {
-      return JSON.parse(localStorage.getItem(key));
-    }
-  };
   // записать данные в ханилище
-  // получает ключ и объект в виде аргументов и дописывает данные в localStorage
-  const setStorage = (key, obj) => {
-    if (!localStorage.hasOwnProperty(key)) {
-      const data = [];
-      data.push(...obj);
-      localStorage.setItem(key, JSON.stringify(data));
-    } else {
-      localStorage.setItem(key, JSON.stringify(obj));
-    }
-  };
+  const setContactData = (data) =>
+    localStorage.setItem('phonebook', JSON.stringify(data));
 
   // удаляет из localStorage
-  const removeStorage = key => {
-    const data = getStorage('phonebook');
-    const dataAfterDelete = data.filter(item => item.phone !== key);
-    setStorage('phonebook', dataAfterDelete);
+  const removeContactData = phone => {
+    const data = getContactData();
+    const dataAfterDelete = data.filter(item => item.phone !== phone);
+    setContactData(dataAfterDelete);
   };
   // добавляет в localStorage
   const addContactData = contact => {
-    const data = getStorage('phonebook');
+    const data = getContactData();
     data.push(contact);
-    setStorage('phonebook', data);
+    setContactData(data);
   };
 
   // создает контейнер для header
@@ -297,24 +282,11 @@ const data = [
     return tr;
   };
 
-  const renderContacts = (elem, data) => {
+  const renderContacts = (elem) => {
+    const data = getContactData();
     const allRow = data.map(createRow);
     elem.append(...allRow);
     return allRow;
-  };
-
-  const hoverRow = (allRow, logo) => {
-    const text = logo.textContent;
-console.log('allRow: ', allRow);
-    // наведение мыши - показывает контакт(телефон)
-    allRow.forEach(contact => {
-      contact.addEventListener('mouseenter', () => {
-        logo.textContent = contact.phoneLink.textContent;
-      });
-      contact.addEventListener('mouseleave', () => {
-        logo.textContent = text;
-      });
-    });
   };
 
   const modalControl = (btnAdd, formOverlay) => {
@@ -352,12 +324,15 @@ console.log('allRow: ', allRow);
         target.closest('.contact').remove();
         // удалить из localStorage
         const phoneDel = target.closest('.contact').childNodes[3].textContent;
-        removeStorage(phoneDel);
+        removeContactData(phoneDel);
       }
     });
   };
 
   const addContactPage = (contact, list) => {
+    document.querySelectorAll('.delete').forEach(del => {
+      del.classList.remove('is-visible');
+    });
     list.append(createRow(contact));
   };
 
@@ -398,7 +373,6 @@ console.log('allRow: ', allRow);
 
     const listHoverRow = (list, logo) => {
       const text = logo.textContent;
-      console.log('list: ', list);
 
       // наведение мыши - показывает контакт(телефон)
       list.addEventListener('mouseover', (e) => {
@@ -408,8 +382,16 @@ console.log('allRow: ', allRow);
         logo.textContent = text;
       });
     };
+
+    // сортировать объект по полю (имени или фамилии)
+    // колл-бэк функция сортировки
+    const sortByField = function(field) {
+      return function(a, b) {
+        return a[field] < b[field] ? -1 : a[field] > b[field] ? 1 : 0;
+      };
+    };
     // Функционал
-    const allRow = renderContacts(list, data);
+    const allRow = renderContacts(list);
 
     const {closeModal} = modalControl(btnAdd, formOverlay);
 
@@ -420,29 +402,17 @@ console.log('allRow: ', allRow);
     deleteControl(btnDel, list);
     formControl(form, list, closeModal);
 
-    setStorage('phonebook', data);
+    const data = getContactData();
+    setContactData(data);
 
     // сортировка по имени или фамлилии
     thead.addEventListener('click', e => {
       const target = e.target;
-
+      const data = getContactData();
       // сортировка по имени на событии в thead
       if (target.classList.contains('firstName')) {
-        console.log(target);
         localStorage.setItem('sorting', 'name');
-        // call-back фун-я сортировки по имени
-        const SortArray = (x, y) => {
-          if (x.name < y.name) {
-            return -1;
-          }
-          if (x.name > y.name) {
-            return 1;
-          }
-          return 0;
-        };
-
-        // сортировать объект по имени
-        const sortData = data.sort(SortArray);
+        const sortData = data.sort(sortByField('name'));
         // создать новые объекты в верстке
         const sortRow = sortData.map(createRow);
         // очистить элемент в верстке
@@ -452,31 +422,17 @@ console.log('allRow: ', allRow);
       }
 
       // сортировка по фаимлии на событии в thead
-
       if (target.classList.contains('surName')) {
         localStorage.setItem('sorting', 'surname');
-        // call-back фун-я сортировки по фамилии
-        const SortArray = (x, y) => {
-          if (x.surname < y.surname) {
-            return -1;
-          }
-          if (x.surname > y.surname) {
-            return 1;
-          }
-          return 0;
-        };
-
-        // сортировать объект по фамилии
-        const sortData = data.sort(SortArray);
-
+        const sortData = data.sort(sortByField('surname'));
         const sortRow = sortData.map(createRow);
         // очистить элемент в верстке
         list.innerHTML = '';
         // вставить элементы в верстку
         list.append(...sortRow);
       }
-      });
-    };
+    });
+  };
   // 1. выносит в window ф-ю инициализации app.
   window.phonebookInit = init;
 }
