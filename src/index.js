@@ -1,7 +1,7 @@
-import createElements from './modules/createElements.js';
-import {renderContacts, renderPhoneBook} from './modules/render.js';
-import control from './modules/control.js';
-import {getContactData, setContactData} from './modules/serviceStorage.js';
+import createElements from './script/createElements.js';
+import {renderContacts, renderPhoneBook} from './script/render.js';
+import control from './script/control.js';
+import {getContactData, setContactData} from './script/serviceStorage.js';
 
 
 const {
