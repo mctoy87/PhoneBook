@@ -13,20 +13,27 @@ module.exports = {
   devServer: {
     hot: true,
   },
-  entry: './src/index.js',
+  entry: ['@babel/polyfill', './src/index.js'],
   output: {
     filename: '[name][contenthash].js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
+    assetModuleFilename: 'assets/[hash][ext][query]',
   },
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
     }),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      filename: '[name][contenthash].css',
+    }),
   ],
   module: {
     rules: [
+      {
+        test: /\.html$/i,
+        loader: 'html-loader',
+      },
       {
         test: /\.(sa|sc|c)ss$/i,
         use: [
@@ -34,7 +41,25 @@ module.exports = {
           'css-loader',
           'postcss-loader',
           'sass-loader',
-        ],
+        ], 
+      },
+      {
+        test: /\.(jpg|jpeg|png|svg|gif)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(woff2|woff|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.m?js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            cacheDirectory: true,
+          },
+        },
       },
     ],
   },

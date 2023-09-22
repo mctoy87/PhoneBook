@@ -1,5 +1,5 @@
-import createElements from './createElements.js';
-import {removeContactData, addContactData} from './serviceStorage.js';
+import createElements from './createElements.mjs';
+import {removeContactData, addContactData} from './serviceStorage';
 
 const {
   createRow,

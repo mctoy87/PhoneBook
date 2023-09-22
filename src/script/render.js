@@ -1,5 +1,9 @@
-import createElements from './createElements.js';
-import * as serv from './serviceStorage.js';
+import createElements from './createElements.mjs';
+import * as serv from './serviceStorage';
+
+import {
+  createImageLogo,
+} from './createElements.mjs';
 
 const {
   createHeader,
@@ -20,6 +24,8 @@ const {
 export const renderPhoneBook = (app, title) => {
   // создать header страницы
   const header = createHeader();
+  // создать картинку (тестовую для webpack)
+  const imageLogo = createImageLogo();
   // создать заголовок
   const logo = createLogo(title);
   // cоздать main
@@ -46,7 +52,7 @@ export const renderPhoneBook = (app, title) => {
   const footer = createFooter();
 
   // вставить заколовок
-  header.headerContainer.append(logo);
+  header.headerContainer.append(imageLogo, logo);
   // добавить на страницу обертку для кнопок и таблицу и overlay
   // т.к. возвращается объект, то append .btnWrapper
   main.mainContainer.append(buttonGroup.btnWrapper, table, overlay);

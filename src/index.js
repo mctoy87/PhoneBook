@@ -1,9 +1,11 @@
-import createElements from './script/createElements.js';
-import {renderContacts, renderPhoneBook} from './script/render.js';
-import control from './script/control.js';
-import {getContactData, setContactData} from './script/serviceStorage.js';
+import createElements from './script/createElements.mjs';
+import {renderContacts, renderPhoneBook} from './script/render';
+import control from './script/control';
+import {getContactData, setContactData} from './script/serviceStorage';
 
-import './css/style.css';
+import './index.html';
+
+import './scss/index.scss';
 
 
 const {
