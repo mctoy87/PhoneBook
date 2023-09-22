@@ -3,6 +3,8 @@ import {renderContacts, renderPhoneBook} from './script/render.js';
 import control from './script/control.js';
 import {getContactData, setContactData} from './script/serviceStorage.js';
 
+import './css/style.css';
+
 
 const {
   createRow,
